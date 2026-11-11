@@ -106,9 +106,9 @@ int main(void)
     char *args[MAX_ARGS];
     int argc;
 
-    // C:\Users\vboxuser\source\repos\JJ-Dynamic-Linking-DLL-Malware\Release
-    // dll = LoadLibraryA("C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-\\Release\\JJ-Dynamic-Linking-DLL.dll"); // good dll
-    dll = LoadLibraryA("C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-Malware\\Release\\JJ-Dynamic-Linking-DLL-Malware.dll");
+    dll = LoadLibraryA("C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-\\Release\\JJ-Dynamic-Linking-DLL.dll"); // good dll
+    // dll = LoadLibraryA("C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-Malware\\Release\\JJ-Dynamic-Linking-DLL-Malware.dll"); // bad dll
+    
     if (!dll) 
     {
         fprintf(stderr, "Unable to load L2WShellDLL.dll: %lu\n", GetLastError());
@@ -132,7 +132,7 @@ int main(void)
             break;
         if (!strchr(line, '\n') && !feof(stdin)) {
             int ch;
-            while ((ch = getchar()) != '\n' && ch != EOF) {}
+            while ((ch = getchar()) != '\n' && ch != EOF) { }
             puts("Input too long.");
             continue;
         }
