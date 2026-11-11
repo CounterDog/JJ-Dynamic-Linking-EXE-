@@ -3,6 +3,13 @@
 #include <stdio.h>
 #include <string.h>
 
+// DLL verifier imports
+#include <softpub.h>
+#include <wintrust.h>
+#include <stdlib.h>
+
+#pragma comment(lib, "wintrust.lib")
+
 #define MAX_LINE 1024
 #define MAX_ARGS 16
 
@@ -97,6 +104,37 @@ static int dispatch(char *args[], int argc, ExecuteCommandFn execute)
     return execute(cmd->windows_name, (const char * const *)(args + 1), argc - 1);
 }
 
+void VerifyDllOrExit(const char* dllPath)
+{
+    wchar_t widePath[MAX_PATH];
+    if (MultiByteToWideChar(CP_ACP, 0, dllPath, -1, widePath, MAX_PATH) == 0) {
+        fprintf(stderr, "Invalid DLL path. Exiting.\n");
+        exit(1);
+    }
+
+    WINTRUST_FILE_INFO fileInfo = { sizeof(fileInfo) };
+    fileInfo.pcwszFilePath = widePath;
+
+    GUID policy = WINTRUST_ACTION_GENERIC_VERIFY_V2;
+
+    WINTRUST_DATA data = { sizeof(data) };
+    data.dwUIChoice = WTD_UI_NONE;
+    data.fdwRevocationChecks = WTD_REVOKE_NONE;
+    data.dwUnionChoice = WTD_CHOICE_FILE;
+    data.pFile = &fileInfo;
+    data.dwStateAction = WTD_STATEACTION_VERIFY;
+
+    LONG status = WinVerifyTrust(NULL, &policy, &data);
+
+    data.dwStateAction = WTD_STATEACTION_CLOSE;
+    WinVerifyTrust(NULL, &policy, &data);
+
+    if (status != ERROR_SUCCESS) {
+        fprintf(stderr, "DLL signature verification failed (0x%lx). Exiting.\n", status);
+        exit(1);
+    }
+}
+
 int main(void)
 {
     HMODULE dll;
@@ -106,8 +144,12 @@ int main(void)
     char *args[MAX_ARGS];
     int argc;
 
-    dll = LoadLibraryA("C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-\\Release\\JJ-Dynamic-Linking-DLL.dll"); // good dll
-    // dll = LoadLibraryA("C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-Malware\\Release\\JJ-Dynamic-Linking-DLL-Malware.dll"); // bad dll
+    char pathToDLL[] = "C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-\\Release\\JJ-Dynamic-Linking-DLL.dll"; // good dll
+    // char pathToDLL[] = "C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-Malware\\Release\\JJ-Dynamic-Linking-DLL-Malware.dll"; // bad dll
+
+    VerifyDllOrExit(pathToDLL); 
+
+    dll = LoadLibraryA(pathToDLL); 
     
     if (!dll) 
     {
