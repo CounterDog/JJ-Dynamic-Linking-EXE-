@@ -6,8 +6,8 @@
 #define MAX_LINE 1024
 #define MAX_ARGS 16
 
-typedef int (__stdcall *ParseCommandFn)(char *, char *[], int);
-typedef int (__cdecl *ExecuteCommandFn)(char *, const char *const [], int);
+typedef int (__cdecl *ParseCommandFn)(char *, char * [], int);
+typedef int (__cdecl *ExecuteCommandFn)(const char *, const char *const [], int);
 
 typedef struct {
     const char *linux_name;
@@ -83,7 +83,7 @@ static int dispatch(char *args[], int argc, ExecuteCommandFn execute)
         if (!GetConsoleScreenBufferInfo(h, &info)) return 1;
         cells = (DWORD)info.dwSize.X * (DWORD)info.dwSize.Y;
         if (!FillConsoleOutputCharacterA(h, ' ', cells, origin, &written)) return 1;
-        if (!FillConsoleOutputAttribute(h, info.dwAttributes, cells, origin, &written)) return 1;
+        if (!FillConsoleOutputAttribute(h, info.wAttributes, cells, origin, &written)) return 1;
         if (!SetConsoleCursorPosition(h, origin)) return 1;
         return 0;
     }
@@ -94,12 +94,11 @@ static int dispatch(char *args[], int argc, ExecuteCommandFn execute)
         puts("Incorrect number of arguments.");
         return 1;
     }
-    return execute(cmd->windows_name, (const char *const *)(args + 1), argc - 1);
+    return execute(cmd->windows_name, (char * const *)(args + 1), argc - 1);
 }
 
 int main(void)
 {
-    HMODULE hmod;
     HMODULE dll;
     ParseCommandFn parse;
     ExecuteCommandFn execute;
@@ -107,21 +106,24 @@ int main(void)
     char *args[MAX_ARGS];
     int argc;
 
-    hmod = LoadLibraryA("L2WShellDLL.dll");
-    if (!hmod) {
+    // C:\Users\vboxuser\source\repos\JJ-Dynamic-Linking-DLL-Malware\Release
+    // dll = LoadLibraryA("C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-\\Release\\JJ-Dynamic-Linking-DLL.dll"); // good dll
+    dll = LoadLibraryA("C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-Malware\\Release\\JJ-Dynamic-Linking-DLL-Malware.dll");
+    if (!dll) 
+    {
         fprintf(stderr, "Unable to load L2WShellDLL.dll: %lu\n", GetLastError());
         return 1;
     }
-    dll = LoadLibraryA("L2WShell.dll");
-    parse = (ParseCommandFn)GetProcAddress(dll, "ParseCmd");
-    execute = (ExecuteCommandFn)GetProcAddress(dll, "ExecuteCmd");
-    if (!parse || !execute) {
+    
+    parse = (ParseCommandFn)GetProcAddress(dll, "ParseCommand");
+    execute = (ExecuteCommandFn)GetProcAddress(dll, "ExecuteCommand");
+    if (!parse || !execute) 
+    {
         fprintf(stderr, "Missing required DLL export.\n");
         FreeLibrary(dll);
-        FreeLibrary(hmod);
         return 1;
     }
-    FreeLibrary(dll);
+
     puts("L2WShell - Linux commands on Windows. Type help.");
     for (;;) {
         fputs("l2w> ", stdout);
@@ -130,7 +132,7 @@ int main(void)
             break;
         if (!strchr(line, '\n') && !feof(stdin)) {
             int ch;
-            while ((ch = getchar()) != '\n' && ch != EOF) { }
+            while ((ch = getchar()) != '\n' && ch != EOF) {}
             puts("Input too long.");
             continue;
         }
@@ -139,7 +141,7 @@ int main(void)
         if (dispatch(args, argc, execute) == -1)
             break;
     }
-    FreeLibrary(hmod);
-    FreeLibrary(hmod);
+
+    FreeLibrary(dll);
     return 0;
 }
