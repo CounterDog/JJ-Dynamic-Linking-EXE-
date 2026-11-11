@@ -1,0 +1,26 @@
+# Compiled files
+*.exe
+*.out
+*.o
+*.obj
+
+# Debug files
+*.pdb
+*.ilk
+
+# Visual Studio
+/.vs/
+*.vcxproj
+*.filters
+*.command
+*.tlog
+*.user
+*.sln
+*.recipe
+
+# Other generated files
+*.json
+*.log
+/FileContentIndex/
+
+/Release/
