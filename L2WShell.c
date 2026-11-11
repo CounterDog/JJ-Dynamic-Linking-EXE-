@@ -7,7 +7,7 @@
 #define MAX_ARGS 16
 
 typedef int (__cdecl *ParseCommandFn)(char *, char * [], int);
-typedef int (__cdecl *ExecuteCommandFn)(const char *, const char *const [], int);
+typedef int (__cdecl *ExecuteCommandFn)(const char*, const char* const [], int);
 
 typedef struct {
     const char *linux_name;
@@ -94,7 +94,7 @@ static int dispatch(char *args[], int argc, ExecuteCommandFn execute)
         puts("Incorrect number of arguments.");
         return 1;
     }
-    return execute(cmd->windows_name, (char * const *)(args + 1), argc - 1);
+    return execute(cmd->windows_name, (const char * const *)(args + 1), argc - 1);
 }
 
 int main(void)
