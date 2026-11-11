@@ -144,8 +144,8 @@ int main(void)
     char *args[MAX_ARGS];
     int argc;
 
-    char pathToDLL[] = "C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-\\Release\\JJ-Dynamic-Linking-DLL.dll"; // good dll
-    // char pathToDLL[] = "C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-Malware\\Release\\JJ-Dynamic-Linking-DLL-Malware.dll"; // bad dll
+    // char pathToDLL[] = "C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-\\Release\\JJ-Dynamic-Linking-DLL.dll"; // good dll
+    char pathToDLL[] = "C:\\Users\\vboxuser\\source\\repos\\JJ-Dynamic-Linking-DLL-Malware\\Release\\JJ-Dynamic-Linking-DLL-Malware.dll"; // bad dll
 
     VerifyDllOrExit(pathToDLL); 
 
